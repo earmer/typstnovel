@@ -1,6 +1,8 @@
 #import "utils/toChinese.typ": num_to_chinese, date_to_chinese
 #import "utils/convert.typ": to-string
+#import "utils/color.typ": get-theme
 #import "@preview/pinit:0.2.2": *
+#import "utils/judge.typ": is_day_time
 
 // Function to set default values
 #let set_defaults(date, title, chapternum) = {
@@ -26,15 +28,15 @@
 }
 
 // Function to prepare title content
-#let prepare_title_content(title, chapternum, volume, volumenum, specialChapterNum, specialVolumeNum) = {
+#let prepare_title_content(title, chapternum, volume, volumenum, specialChapterNum, specialVolumeNum, theme) = {
   let num_str = generate_chapter_num_str(chapternum, specialChapterNum)
   let title_pre = [
-    #set text(size: 22pt, weight: "medium", fill: rgb(54, 54, 54, 230))
+    #set text(size: 22pt, weight: "medium", fill: theme.text.secondary)
     #num_str
-    #set text(fill: rgb(44, 62, 80, 255))
+    #set text(fill: theme.text.base)
     #pin(1)#title#pin(2)
-    #pinit-line(stroke: 1.5pt + gray, start-dy: 0.5em, end-dy: 0.5em, 1, 2)
-    #set text(size: 8pt, fill: luma(100))
+    #pinit-line(stroke: 1.5pt + theme.primary, start-dy: 0.5em, end-dy: 0.5em, 1, 2)
+    #set text(size: 8pt, fill: theme.text.secondary)
     #let wid = context {
       let vol = "卷" + num_to_chinese(num: volumenum, style: "simp") + "　" + volume
       if specialVolumeNum != none {
@@ -59,12 +61,22 @@
   date_str
 }
 
+#let deduct_theme(theme) = {
+  if theme == "dark" or theme == "white" or theme == "blue-pink" {
+    theme = get-theme(theme: theme)
+  } else {
+    theme = get-theme(theme: "blue-pink")
+  }
+  theme
+}
+
 #let chapter(
   title: str,
   chapternum: int,
   volume: str,
   volumenum: int,
   date: datetime,
+  theme: none,
   doc,
   specialChapterNum: none,
   specialVolumeNum: none,
@@ -73,6 +85,9 @@
 ) = {
   // Set default values if not provided
   (date, title, chapternum) = set_defaults(date, title, chapternum)
+  theme = deduct_theme(theme)
+  // [#theme]
+  //
 
   // Font and text settings
   set text(
@@ -82,9 +97,10 @@
     fallback: true,
     hyphenate: true,
     lang: "zh",
+    fill: theme.text.base,
   )
 
-  set page(fill: rgb("#f5f5f5"))
+  set page(fill: theme.background.base)
 
   // Paragraph settings
   set par(linebreaks: "optimized")
@@ -94,7 +110,15 @@
   set align(right)
 
   // Prepare title content
-  let title_content = prepare_title_content(title, chapternum, volume, volumenum, specialChapterNum, specialVolumeNum)
+  let title_content = prepare_title_content(
+    title,
+    chapternum,
+    volume,
+    volumenum,
+    specialChapterNum,
+    specialVolumeNum,
+    theme,
+  )
 
   title_content
 
@@ -136,7 +160,7 @@
     let date_size = measure()[#date_str]
     pinit-place(3, dx: -date_size.width, dy: 1cm)[
       #set align(right)
-      #set text(weight: "medium")
+      #set text(weight: "medium", fill: theme.text.base)
       #date_str
     ]
   }

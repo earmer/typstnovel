@@ -9,6 +9,7 @@
   specialVolumeNum: "???",
   specialDate: "天利三十八年",
   dateAppendix: "\n\n\n于塔利露？",
+  theme: "white",
   doc,
 )
 

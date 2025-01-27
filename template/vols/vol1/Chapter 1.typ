@@ -6,6 +6,7 @@
   volumenum: 1,
   date: datetime(year: 2025, month: 1, day: 26),
   doc,
+  theme: "dark",
 )
 
 「到这里去，中文美了，国人民请从人采取风采算风三片瑞思恩柱！」
